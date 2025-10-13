@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException
+import pandas as pd
 from bson import ObjectId
 from app.models.model_pengembalian import Pengembalian
 from app.database import db
@@ -13,16 +14,16 @@ collection = db["pengembalian"]
 def pengembalian_serializer(item) -> dict:
     return {
         "id": str(item["_id"]),
-        "No": item["No"],
-        "Kode_Item": item["Kode_Item"],
-        "Nama_Item": item["Nama_Item"],
-        "Jml": item["Jml"],
-        "Satuan": item["Satuan"],
-        "Harga": item["Harga"],
-        "Potongan": item["Potongan"],
-        "Total_Harga": item["Total_Harga"],
-        "Bulan": item["Bulan"],
-        "Tahun": item["Tahun"]
+        "No": item.get("No"),
+        "Kode_Item": item.get("Kode_Item"),
+        "Nama_Item": item.get("Nama_Item"),
+        "Jml": item.get("Jml"),
+        "Satuan": item.get("Satuan"),
+        "Harga": item.get("Harga"),
+        "Potongan": item.get("Potongan"),
+        "Total_Harga": item.get("Total_Harga"),
+        "Bulan": item.get("Bulan"),
+        "Tahun": item.get("Tahun"),
     }
 
 # GET semua data pengembalian
@@ -37,6 +38,33 @@ def add_pengembalian(data: Pengembalian):
     inserted = collection.insert_one(data.dict())
     new_data = collection.find_one({"_id": inserted.inserted_id})
     return pengembalian_serializer(new_data)
+
+# ✅ UPLOAD CSV ke MongoDB
+@router.post("/upload-csv")
+async def upload_csv(file: UploadFile = File(...)):
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(status_code=400, detail="File harus berformat CSV")
+
+    # Baca CSV menggunakan pandas
+    try:
+        df = pd.read_csv(file.file)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Gagal membaca file CSV")
+
+    # Pastikan kolom sesuai dengan koleksi
+    required_columns = ["No", "Kode_Item", "Nama_Item", "Jml", "Satuan", "Harga", "Potongan", "Total_Harga", "Bulan", "Tahun"]
+    for col in required_columns:
+        if col not in df.columns:
+            raise HTTPException(status_code=400, detail=f"Kolom '{col}' tidak ditemukan di CSV")
+
+    # Konversi DataFrame ke list of dict
+    data_dicts = df.to_dict(orient="records")
+
+    # Simpan semua data ke MongoDB
+    if data_dicts:
+        collection.insert_many(data_dicts)
+
+    return {"message": f"Berhasil mengimpor {len(data_dicts)} data dari CSV"}
 
 # PUT edit data pengembalian
 @router.put("/{id}")

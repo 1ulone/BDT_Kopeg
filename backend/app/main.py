@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.controllers.controller_pengembalian import router as pengembalian_router
+from app.controllers.controller_pembelian import router as pembelian_router
+from app.controllers.controller_penjualan import router as penjualan_router
 
 from app.controllers import (
     controller_pembelian,
