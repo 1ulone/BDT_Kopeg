@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.controllers.controller_pengembalian import router as pengembalian_router
 
 from app.controllers import (
     controller_pembelian,
@@ -20,6 +21,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(pengembalian_router)
 
 # Include router aktif saja
 app.include_router(controller_pembelian.router)
