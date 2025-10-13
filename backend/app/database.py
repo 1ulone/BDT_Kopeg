@@ -8,6 +8,6 @@ MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 client = MongoClient(MONGO_URI)
 
 db = client["db_kopeg"]
-pembelian_collection = client["pembelian"]
-penjualan_collection = client["penjualan"]
-pengembalian_collection = client["pengembalian"]
+pembelian_collection = db["pembelian"]
+penjualan_collection = db["penjualan"]
+pengembalian_collection = db["pengembalian"]
