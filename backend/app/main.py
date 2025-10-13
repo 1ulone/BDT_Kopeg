@@ -10,10 +10,6 @@ from app.controllers import (
 
 app = FastAPI()
 
-@app.get("/")
-def home():
-    return {"message": "API sudah berjalan dengan baik 🚀"}
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,9 +17,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(pengembalian_router)
 
-# Include router aktif saja
+app.include_router(pengembalian_router)
 app.include_router(controller_pembelian.router)
 app.include_router(controller_penjualan.router)
-# app.include_router(controller_pengembalian.router)  ← hapus/baris komentar
+
+@app.get("/")
+def home():
+    return {"message": "API sudah berjalan dengan baik 🚀"}
+
+

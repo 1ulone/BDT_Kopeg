@@ -9,8 +9,9 @@ export default forwardRef(function TextInput({ title, type, ...props }, ref) {
             <input 
                 type={type}
                 ref={input}
-                className={"border-2 border-gray-400 rounded-md shadow-md px-2 py-1 w-full" + props}
+                className={"border-2 border-gray-400 rounded-md shadow-md px-2 py-1 w-full"}
                 placeholder=". . ."
+                {...props}
             />
         </div>
     )
