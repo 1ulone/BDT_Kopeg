@@ -5,7 +5,7 @@ from app.models.model_pengembalian import Pengembalian
 from app.database import db
 
 router = APIRouter(
-    prefix="/api/pengembalian",
+    prefix="/pengembalian",
     tags=["Pengembalian"]
 )
 collection = db["pengembalian"]
