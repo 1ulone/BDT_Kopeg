@@ -7,6 +7,7 @@ import BulanInput from "../components/BulanInput";
 export default function Penjualan() {
     const navigate = useNavigate();
     const currentYear = new Date().getFullYear();
+    const [file, setFile] = useState(null);
 
     const [data, setData] = useState({
         Kode_Item:0,
@@ -21,19 +22,41 @@ export default function Penjualan() {
     
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (file == null) 
+        {
+            try {
+                console.log(data);
+                await fetch("http://localhost:8000/penjualan/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                });
+                navigate("/");
+            } catch (err) {
+                console.error("Error:", err);
+            }
+        } else {
+            try {
+                const formData = new FormData();
+                formData.append("file", file);
 
-        try {
-            console.log(data);
-            await fetch("http://localhost:8000/penjualan/", {
-            method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-            navigate("/");
-        } catch (err) {
-            console.error("Error:", err);
+                await fetch("http://localhost:8000/penjualan/upload-csv", {
+                    method: "POST",
+                    body: formData,
+                });
+                navigate("/");
+            } catch (err) {
+                console.error("Error:", err);
+            }
+        }
+    }
+
+    const handleCSVFile = (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const file = e.target.files[0];
+            setFile(file);
         }
     }
 
@@ -41,9 +64,11 @@ export default function Penjualan() {
         <Navbar>
             <div className="flex justify-between items-center bg-white rounded-lg my-4 p-2 shadow-lg">
                 <p className="text-2xl">Input Transaksi Penjualan Barang Kopeg</p>
-                <button className="button">
-                    Import dari .csv 
-                </button>
+                <div className="flex flex-col text-center">
+                    <input type="file" className="button" hidden id="csv" onChange={handleCSVFile} accept=".csv" />
+                    <label className="button" for="csv"> Import dari .csv </label>
+                    {file != null && (<p>{file.name}</p>) }
+                </div>
             </div>
 
             <form className="bg-white w-full rounded-lg px-12 py-8 shadow-xl mx-auto" onSubmit={handleSubmit}>
