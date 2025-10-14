@@ -6,6 +6,10 @@ import io
 
 router = APIRouter(prefix="/pembelian", tags=["Pembelian"])
 
+# =====================================================
+# CRUD
+# =====================================================
+
 # CREATE
 @router.post("/")
 def tambah_pembelian(data: Pembelian):
@@ -37,7 +41,10 @@ def hapus_pembelian(kode_item: int):
         raise HTTPException(status_code=404, detail="Data tidak ditemukan")
     return {"message": "Data pembelian berhasil dihapus"}
 
+# =====================================================
 # UPLOAD CSV
+# =====================================================
+
 @router.post("/upload-csv")
 async def upload_csv(file: UploadFile = File(...)):
     try:
@@ -59,3 +66,44 @@ async def upload_csv(file: UploadFile = File(...)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+# =====================================================
+# STATISTIK (untuk grafik di React)
+# =====================================================
+
+@router.get("/statistik")
+def get_statistik_pembelian():
+    try:
+        # Ambil semua data dari MongoDB
+        data = list(db.pembelian.find({}, {"_id": 0}))
+        if not data:
+            raise HTTPException(status_code=404, detail="Tidak ada data pembelian di database")
+
+        df = pd.DataFrame(data)
+
+        # Pastikan kolom numerik dikonversi dengan benar
+        df["Jumlah"] = pd.to_numeric(df["Jumlah"], errors="coerce")
+        df["Total_Harga"] = pd.to_numeric(df["Total_Harga"], errors="coerce")
+
+        # === ANALISIS UTAMA ===
+        total_per_jenis = df.groupby("Jenis")["Total_Harga"].sum().reset_index()
+        jumlah_per_jenis = df.groupby("Jenis")["Jumlah"].sum().reset_index()
+        top_items = df.nlargest(5, "Total_Harga")[["Nama_Item", "Total_Harga"]]
+        total_per_bulan = df.groupby("Bulan")["Total_Harga"].sum().reset_index()
+
+        # (opsional) total per tahun
+        total_per_tahun = df.groupby("Tahun")["Total_Harga"].sum().reset_index()
+
+        # === RETURN ===
+        return {
+            "total_per_jenis": total_per_jenis.to_dict(orient="records"),
+            "jumlah_per_jenis": jumlah_per_jenis.to_dict(orient="records"),
+            "top_items": top_items.to_dict(orient="records"),
+            "total_per_bulan": total_per_bulan.to_dict(orient="records"),
+            "total_per_tahun": total_per_tahun.to_dict(orient="records")
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gagal menghasilkan statistik: {e}")
