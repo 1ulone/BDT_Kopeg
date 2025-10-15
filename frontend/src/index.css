@@ -15,7 +15,7 @@
 }
 
 .button {
-    @apply text-2xl px-4 py-2 bg-green-400 rounded-lg hover:bg-green-800 hover:text-white duration-300 ease-in-out shadow-md;
+    @apply text-2xl px-4 py-2 bg-green-400 rounded-lg hover:bg-green-800 hover:text-white duration-300 ease-in-out shadow-md disabled:bg-gray-600 disabled:text-gray-400;
 }
 
 table .content_even {

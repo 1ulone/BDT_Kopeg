@@ -1,13 +1,6 @@
-export default function Table({ headData, mainData, extraClass }) {
+export default function OpnameTable({ headData, mainData, extraClass }) {
     const contentClass = (i) => {
         return i % 2 === 0 ? "content_odd" : "content_even";
-    }
-
-    const formatCurrency = (amt) => {
-        if (typeof amt === "string") return amt;
-        if (!amt && amt !== 0) return 0;
-        if (amt === 0) return 0;
-        return `Rp ${new Intl.NumberFormat("id-ID").format(amt)}`
     }
 
     return (
@@ -27,9 +20,9 @@ export default function Table({ headData, mainData, extraClass }) {
                         <tr key={index}>
                             <td className={contentClass(index)}> {data.Kode_Item} </td>
                             <td className={contentClass(index)}> {data.Nama_Item} </td>
-                            <td className={contentClass(index)}> {data.Jumlah} {data.Satuan} </td>
-                            <td className={contentClass(index)}> {formatCurrency(data.Total_Harga)} </td>
-                            <td className={contentClass(index)}> {data.Bulan} {data.Tahun} </td>
+                            <td className={contentClass(index)}> {data.Jumlah==null ? data.Jumlah_lama : data.Jumlah} {data.Satuan} </td>
+                            <td className={contentClass(index)}> {data.Stock_Fisik ?? 0} {data.Satuan} </td>
+                            <td className={contentClass(index)}> {data.Selisih ?? 0} </td>
                         </tr>
                     ))}
                 </tbody>

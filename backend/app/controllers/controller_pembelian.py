@@ -1,11 +1,8 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, Query
+from fastapi import APIRouter, HTTPException, UploadFile, File 
 from app.models.model_pembelian import Pembelian
 from app.database import db
-from app.database import db_async
 import pandas as pd
 import io
-from fastapi.responses import JSONResponse
-from typing import List
 
 router = APIRouter(prefix="/pembelian", tags=["Pembelian"])
 
@@ -114,91 +111,3 @@ def get_statistik_pembelian():
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gagal menghasilkan statistik: {e}")
-
-
-# =====================================================
-# OPNAME PRODUK (Upload CSV + Bandingkan Data Lama)
-# =====================================================
-
-@router.post("/opname")
-async def upload_opname(
-    file: UploadFile = File(...),
-    page: int = Query(1, ge=1),
-    per_page: int = Query(500, ge=1, le=5000)
-):
-    try:
-        # --- 1️⃣ Read uploaded file ---
-        contents = await file.read()
-        filename = file.filename.lower()
-
-        if filename.endswith(".csv"):
-            df_new = pd.read_csv(io.StringIO(contents.decode("utf-8")))
-        elif filename.endswith(".xlsx"):
-            df_new = pd.read_excel(io.BytesIO(contents))
-        else:
-            raise HTTPException(status_code=400, detail="Format file tidak didukung. Hanya CSV atau XLSX.")
-
-        # Normalize column names
-        df_new.rename(columns={
-            "Nama_Barang": "Nama_Item",
-            "Qty_SO": "Jumlah"
-        }, inplace=True)
-
-        expected_cols = {"Kode_Item", "Nama_Item", "Jumlah"}
-        if not expected_cols.issubset(df_new.columns):
-            raise HTTPException(status_code=400, detail=f"File harus memiliki kolom: {expected_cols}")
-
-        # Ensure correct types
-        df_new["Kode_Item"] = df_new["Kode_Item"].astype(str)
-        df_new["Nama_Item"] = df_new["Nama_Item"].astype(str)
-        df_new["Jumlah"] = pd.to_numeric(df_new["Jumlah"], errors="coerce").fillna(0)
-
-        # --- 2️⃣ Fetch relevant DB records ---
-        kode_items = df_new["Kode_Item"].unique().tolist()
-        cursor = db_async.pembelian.find(
-            {"Kode_Item": {"$in": kode_items}},
-            {"_id": 0, "Kode_Item": 1, "Nama_Item": 1, "Jumlah": 1}
-        )
-        data_lama: List[dict] = await cursor.to_list(length=None)
-
-        df_old = pd.DataFrame(data_lama)
-        if df_old.empty:
-            df_old = pd.DataFrame(columns=["Kode_Item", "Nama_Item", "Jumlah"])
-
-        df_old["Kode_Item"] = df_old["Kode_Item"].astype(str)
-        df_old["Nama_Item"] = df_old["Nama_Item"].astype(str)
-        df_old["Jumlah"] = pd.to_numeric(df_old["Jumlah"], errors="coerce").fillna(0)
-
-        # --- 3️⃣ Merge and compute difference ---
-        merged = pd.merge(
-            df_old, df_new,
-            on="Kode_Item",
-            how="outer",
-            suffixes=("_lama", "_baru")
-        )
-
-        merged["Nama_Item"] = merged["Nama_Item_baru"].fillna(merged["Nama_Item_lama"])
-        merged["Jumlah_lama"] = merged["Jumlah_lama"].fillna(0)
-        merged["Jumlah_baru"] = merged["Jumlah_baru"].fillna(0)
-        merged["Selisih"] = merged["Jumlah_baru"] - merged["Jumlah_lama"]
-        merged["Stock_Fisik"] = merged["Jumlah_baru"]
-
-        hasil = merged[["Kode_Item", "Nama_Item", "Jumlah_lama", "Stock_Fisik", "Selisih"]]
-
-        # --- 4️⃣ Pagination ---
-        total = len(hasil)
-        start = (page - 1) * per_page
-        end = start + per_page
-
-        paginated = hasil.iloc[start:end].to_dict(orient="records")
-
-        return JSONResponse({
-            "message": f"Berhasil memproses opname dari file {filename}",
-            "page": page,
-            "per_page": per_page,
-            "total_produk": total,
-            "data": paginated
-        })
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Gagal memproses opname: {str(e)}")
