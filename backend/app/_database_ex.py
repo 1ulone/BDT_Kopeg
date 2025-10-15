@@ -4,8 +4,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 load_dotenv()
 
-async_client = AsyncIOMotorClient('mongodb://localhost:27017/')
-client = MongoClient('mongodb://localhost:27017/')
+async_client = AsyncIOMotorClient('mongodb://admin:password@localhost:27017/')
+client = MongoClient('mongodb://admin:password@localhost:27017/')
 
 db = client["db_kopeg"]
 db_async = async_client["db_kopeg"]
