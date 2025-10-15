@@ -54,10 +54,17 @@ export default function Navbar({ children }) {
                     </motion.p>
                 </Link>
 
-                <Link to="/Pengembalian" className="py-2 px-4 hover:bg-green-300/50 ease-in-out duration-400 text-xl rounded-lg flex">
+                <Link to="/pengembalian" className="py-2 px-4 hover:bg-green-300/50 ease-in-out duration-400 text-xl rounded-lg flex">
                     <i className="bi bi-cart-x ml-2.5" /> 
                     <motion.p variants={anim} initial="hidden" animate={onShow ? "visible" : "hidden"} className="pl-2">
                         Pengembalian Barang
+                    </motion.p>
+                </Link>
+
+                <Link to="/opname" className="py-2 px-4 hover:bg-green-300/50 ease-in-out duration-400 text-xl rounded-lg flex">
+                    <i className="bi bi-journal-check ml-2.5" /> 
+                    <motion.p variants={anim} initial="hidden" animate={onShow ? "visible" : "hidden"} className="pl-2">
+                        Cek Stock of Opname
                     </motion.p>
                 </Link>
 

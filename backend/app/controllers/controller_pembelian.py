@@ -90,7 +90,7 @@ def get_statistik_pembelian():
         # === ANALISIS UTAMA ===
         total_per_jenis = df.groupby("Jenis")["Total_Harga"].sum().reset_index()
         jumlah_per_jenis = df.groupby("Jenis")["Jumlah"].sum().reset_index()
-        top_items = df.nlargest(5, "Total_Harga")[["Nama_Item", "Total_Harga"]]
+        top_items = df.nlargest(5, "Total_Harga")[["Kode_Item", "Nama_Item", "Jenis", "Jumlah", "Satuan", "Total_Harga", "Bulan", "Tahun"]]
         total_per_bulan = df.groupby("Bulan")["Total_Harga"].sum().reset_index()
 
         # (opsional) total per tahun

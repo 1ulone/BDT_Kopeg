@@ -4,6 +4,7 @@ import Pembelian from "./pages/Pembelian";
 import Penjualan from "./pages/Penjualan";
 import Pengembalian from "./pages/Pengembelian";
 import { AnimatePresence } from "framer-motion";
+import Opname from "./pages/Opname";
 
 function App() {
 
@@ -14,6 +15,7 @@ function App() {
                 <Route path="/pembelian" element={ <Pembelian /> } />
                 <Route path="/penjualan" element={ <Penjualan /> } />
                 <Route path="/pengembalian" element={ <Pengembalian /> } />
+                <Route path="/opname" element={ <Opname /> } />
             </Routes>
         </AnimatePresence>
     );
