@@ -5,7 +5,8 @@ from app.controllers import (
     controller_pembelian,
     controller_penjualan,
     controller_pengembalian,
-    controller_opname
+    controller_opname,
+    controller_predict
 )
 
 app = FastAPI()
@@ -22,3 +23,4 @@ app.include_router(controller_pembelian.router)
 app.include_router(controller_penjualan.router)
 app.include_router(controller_pengembalian.router)
 app.include_router(controller_opname.router)
+app.include_router(controller_predict.router)
