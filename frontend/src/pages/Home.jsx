@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "../components/Navbar";
 import Table from "../components/Table";
-import { Bar, Doughnut, Line } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 
 import {
     Chart as ChartJS,
@@ -19,20 +19,20 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default function Home() {
-    const [data, setData] = useState({total_per_jenis: [], jumlah_per_jenis: [], top_items: [], total_per_bulan: [], total_per_tahun: []});
+    const [data, setData] = useState({top_items: [], total_per_bulan: [], penjualan: [], pembelian:[]});
     const [prediction, setPrediction] = useState([]);
     const [month, setMonth] = useState("");
     const [search, setSearch] = useState("");
+    const [searchP, setSearchP] = useState("");
 
     useEffect(() => {
-        fetch("http://127.0.0.1:8000/pembelian/statistik")
+        fetch("http://127.0.0.1:8000/statistik")
             .then((res) => res.json())
             .then((data) => setData({
-                total_per_jenis: data.total_per_jenis,
-                jumlah_per_jenis: data.jumlah_per_jenis,
                 top_items: data.top_items,
                 total_per_bulan: data.total_per_bulan,
-                total_per_tahun: data.total_per_tahun,
+                penjualan: data.penjualan,
+                pembelian: data.pembelian,
             }));
     }, []);
 
@@ -76,53 +76,37 @@ export default function Home() {
         });
     }, [prediction, search]);
 
+    const filteredPembelian = useMemo(() => {
+        if (!data.pembelian)
+            return [];
+
+        return data.pembelian.filter(d => {
+            const matchesNameSearch = d.Nama_Item.toLowerCase().includes(searchP.toLowerCase());
+            return matchesNameSearch;
+        });
+    }, [data.pembelian, searchP]);
+
+    const filteredPenjualan = useMemo(() => {
+        if (!data.penjualan)
+            return [];
+
+        return data.penjualan.filter(d => {
+            const matchesNameSearch = d.Nama_Item.toLowerCase().includes(searchP.toLowerCase());
+            return matchesNameSearch;
+        });
+    }, [data.penjualan, searchP]);
+
+    const revisedPembelian = filteredPembelian.slice(0, 10);
+    const revisedPenjualan = filteredPenjualan.slice(0, 10);
+
     return (
         <Navbar>
             <div className="bg-white rounded-lg shadow-lg px-8 py-4">
                 <p className="text-2xl">Dashboard</p>
             </div>
 
-            <div className="flex justify-around m-4 mt-12">
-                <div className="w-1/2 bg-white p-8 rounded-xl shadow-lg">
-                    <p>Pembelian Terbanyak</p>
-                    <Bar 
-                        data={{
-                            labels: data.total_per_jenis.map((d) => d.Jenis),
-                            datasets: [
-                                {
-                                    label:"Jumlah",
-                                    data: data.total_per_jenis.map((d) => d.Total_Harga),
-                                },
-                            ],
-                        }}
-                        options={{ maintainAspectRatio: true, responsive: true }}
-                    />
-                </div>
-
-                <div className="w-1/3 h-fit bg-white p-8 rounded-xl shadow-lg">
-                    <Doughnut 
-                        data={{
-                            labels: data.total_per_tahun.map((d) => d.Tahun),
-                            datasets: [
-                                {
-                                    label:"Count",
-                                    data: data.total_per_tahun.map((d) => d.Total_Harga),
-                                    backgroundColor: [
-                                        "#32a852",
-                                        "#b526a0",
-                                        "#b51235",
-                                        "#e0c422",
-                                        "#48e8e0",
-                                    ],
-                                },
-                            ]
-                        }}
-                        options={{ maintainAspectRatio: true, responsive: true }}
-                    />
-                </div>
-            </div>
-
-            <div className="w-[90%] bg-white p-8 rounded-xl shadow-lg mx-auto my-12">
+            <div className="w-[90%] bg-white p-8 rounded-xl shadow-lg mx-auto my-12 flex flex-col">
+                <p>Data Penjualan per bulan</p>
                 <Line
                     data={{
                         labels: sorted.map((d) => d.Bulan),
@@ -159,7 +143,54 @@ export default function Home() {
                 />
             </div>
 
+            <div className="w-[90%] bg-white p-8 rounded-xl shadow-lg flex flex-col mx-auto my-12">
+                <p>Perbandingan Penjualan dan Perbandingan</p>
+                <input type="text" className="p-4 bg-gray-300 w-3/5 mx-auto m-4 rounded-lg" placeholder="Cari Produk..." onChange={(e)=> { setSearchP(e.target.value); }}/>
+                <Bar
+                    data={{
+                        // 🏷️ Labels = item names
+                        labels: revisedPenjualan.map((d) => d.Nama_Item),
+
+                        // 📊 Two datasets: Penjualan & Pembelian
+                        datasets: [
+                            {
+                                label: "Penjualan",
+                                data: revisedPenjualan.map((d) => d.Jumlah),
+                                backgroundColor: "rgba(54, 162, 235, 0.6)",
+                                borderRadius: 8,
+                            },
+                            {
+                                label: "Pembelian",
+                                data: revisedPembelian.map((d) => d.Jumlah),
+                                backgroundColor: "rgba(255, 99, 132, 0.6)",
+                                borderRadius: 8,
+                            },
+                        ],
+                    }}
+                    options={{
+                        maintainAspectRatio: true,
+                        responsive: true,
+                        plugins: {
+                            legend: { position: "top" },
+                            title: {
+                                display: true,
+                                text: "Perbandingan Jumlah Penjualan dan Pembelian",
+                                font: { size: 16 },
+                            },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: "Jumlah (PCS)" },
+                            },
+                        },
+                    }}
+                    height={128}
+                />
+            </div>
+
             <div className="w-[90%] bg-white p-8 rounded-xl shadow-lg mx-auto my-12 flex flex-col">
+                <p>Produk Terlaris</p>
                 <Table 
                     headData={[ "Kode", "Nama", "Jumlah", "Harga Total", "Bulan" ]}
                     mainData={data.top_items}

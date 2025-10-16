@@ -80,34 +80,4 @@ async def upload_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Gagal memproses file: {str(e)}")
 
 
-# =====================================================
-# STATISTIK (untuk grafik di React)
-# =====================================================
 
-@router.get("/statistik")
-def get_statistik_pembelian():
-    try:
-        data = list(db.pembelian.find({}, {"_id": 0}))
-        if not data:
-            raise HTTPException(status_code=404, detail="Tidak ada data pembelian di database")
-
-        df = pd.DataFrame(data)
-        df["Jumlah"] = pd.to_numeric(df["Jumlah"], errors="coerce")
-        df["Total_Harga"] = pd.to_numeric(df["Total_Harga"], errors="coerce")
-
-        total_per_jenis = df.groupby("Jenis")["Total_Harga"].sum().reset_index()
-        jumlah_per_jenis = df.groupby("Jenis")["Jumlah"].sum().reset_index()
-        top_items = df.nlargest(5, "Total_Harga")[["Kode_Item", "Nama_Item", "Jenis", "Jumlah", "Satuan", "Total_Harga", "Bulan", "Tahun"]]
-        total_per_bulan = df.groupby("Bulan")["Total_Harga"].sum().reset_index()
-        total_per_tahun = df.groupby("Tahun")["Total_Harga"].sum().reset_index()
-
-        return {
-            "total_per_jenis": total_per_jenis.to_dict(orient="records"),
-            "jumlah_per_jenis": jumlah_per_jenis.to_dict(orient="records"),
-            "top_items": top_items.to_dict(orient="records"),
-            "total_per_bulan": total_per_bulan.to_dict(orient="records"),
-            "total_per_tahun": total_per_tahun.to_dict(orient="records")
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Gagal menghasilkan statistik: {e}")

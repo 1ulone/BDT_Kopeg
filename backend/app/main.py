@@ -6,7 +6,8 @@ from app.controllers import (
     controller_penjualan,
     controller_pengembalian,
     controller_opname,
-    controller_predict
+    controller_predict,
+    controller_statistik,
 )
 
 app = FastAPI()
@@ -24,3 +25,4 @@ app.include_router(controller_penjualan.router)
 app.include_router(controller_pengembalian.router)
 app.include_router(controller_opname.router)
 app.include_router(controller_predict.router)
+app.include_router(controller_statistik.router)
