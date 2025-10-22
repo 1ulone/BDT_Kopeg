@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 
-export default function Table({ headData, mainData, extraClass, handleSubmit, handleCSV, file }) {
+export default function ReturnTable({ headData, mainData, extraClass }) {
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const [bulan, setBulan] = useState("");
@@ -10,6 +10,12 @@ export default function Table({ headData, mainData, extraClass, handleSubmit, ha
         return i % 2 === 0 ? "content_odd" : "content_even";
     }
 
+    const formatCurrency = (amt) => {
+        if (typeof amt === "string") return amt;
+        if (!amt && amt !== 0) return 0;
+        if (amt === 0) return 0;
+        return `Rp ${new Intl.NumberFormat("id-ID").format(amt)}`
+    }
 
     const filteredData = useMemo(() => {
         if (!mainData)
@@ -21,7 +27,7 @@ export default function Table({ headData, mainData, extraClass, handleSubmit, ha
             const matchesBulan = d.Bulan.toLowerCase().includes(bulan.toLowerCase());
             return (matchesNameSearch || matchesKodeSearch) && matchesBulan;
         });
-    }, [mainData, search, bulan]);
+    }, [mainData, search]);
 
     const totalPages = Math.ceil(filteredData.length / pageLimit);
     const start = (page - 1) * pageLimit;
@@ -31,28 +37,21 @@ export default function Table({ headData, mainData, extraClass, handleSubmit, ha
     return (
         <>
             <div className="py-4 w-full flex justify-between">
-                <input type="text" className="p-4 bg-gray-300 w-1/2 rounded-full" placeholder="Cari Produk..." onChange={(e)=> { setSearch(e.target.value); }}/>
-                <div className="flex gap-4 items-center">
-                    <input type="file" className="button" hidden id="csv" onChange={handleCSV} accept=".csv" />
-                    <label className="button" htmlFor="csv"> Upload .csv </label>
-                    <button className="button" onClick={handleSubmit} disabled={file==null}>Refresh Data</button>
-                    <select className="select_option w-fit" onChange={(e) => setBulan(e.target.value)}>
-                        <option value="">-- pilih bulan --</option>
-                        <option value="januari">Januari</option>
-                        <option value="februari">februari</option>
-                        <option value="maret">maret</option>
-                        <option value="april">april</option>
-                        <option value="juni">juni</option>
-                        <option value="juli">juli</option>
-                        <option value="agustus">agustus</option>
-                        <option value="september">september</option>
-                        <option value="oktober">oktober</option>
-                        <option value="november">november</option>
-                        <option value="desember">desember</option>
-                    </select>
-                </div>
-
-
+                <input type="text" className="p-4 bg-gray-300 w-3/5 rounded-full" placeholder="Cari Produk..." onChange={(e)=> { setSearch(e.target.value); }}/>
+                <select className="select_option w-fit" onChange={(e) => setBulan(e.target.value)}>
+                    <option value="">-- pilih bulan --</option>
+                    <option value="januari">Januari</option>
+                    <option value="februari">februari</option>
+                    <option value="maret">maret</option>
+                    <option value="april">april</option>
+                    <option value="juni">juni</option>
+                    <option value="juli">juli</option>
+                    <option value="agustus">agustus</option>
+                    <option value="september">september</option>
+                    <option value="oktober">oktober</option>
+                    <option value="november">november</option>
+                    <option value="desember">desember</option>
+                </select>
             </div>
             <div className={"flex"+ extraClass}>
                 <div className="flex bg-gray-800 rounded-xl my-1">
@@ -67,10 +66,10 @@ export default function Table({ headData, mainData, extraClass, handleSubmit, ha
                         <div key={index} className={contentClass(index)}>
                             <p> {data.Kode_Item} </p>
                             <p> {data.Nama_Item} </p>
-                            <p> {data.Jumlah==null ? data.Jumlah_lama : data.Jumlah} {data.Satuan} </p>
-                            <p> {data.Stock_Fisik ?? 0} {data.Satuan} </p>
-                            <p> {data.Selisih ?? 0} </p>
-                            <p> {data.Bulan} </p>
+                            <p> {data.Jml} {data.Satuan} </p>
+                            <p> {formatCurrency(data.Total_Harga)} </p>
+                            <p> {data.Potongan} </p>
+                            <p> {data.Bulan} {data.Tahun} </p>
                         </div>
                     ))}
                 </div>

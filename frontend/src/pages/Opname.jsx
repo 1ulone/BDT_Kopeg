@@ -4,29 +4,8 @@ import OpnameTable from "../components/OpnameTable";
 
 export default function Opname() {
     const [data, setData] = useState([]);
-    const [search, setSearch] = useState("");
     const [file, setFile] = useState(null);
-    const [page, setPage] = useState(1);
-    const [total, setTotal] = useState(0);
-    const pageLimit = 20;
-
-    const filteredData = useMemo(() => {
-        if (!data)
-            return [];
-
-        return data.filter(d => {
-            const matchesNameSearch = d.Nama_Item.toLowerCase().includes(search.toLowerCase());
-            const matchesKodeSearch = d.Kode_Item.toString().includes(search.toLowerCase());
-            return matchesNameSearch || matchesKodeSearch;
-        });
-    }, [data, search]);
-
-    const handleCSVFile = (e) => {
-        if (e.target.files && e.target.files.length > 0) {
-            const file = e.target.files[0];
-            setFile(file);
-        }
-    }
+    const [type, setType] = useState(0);
 
     const handleSubmit = async () => {
         try {
@@ -40,59 +19,48 @@ export default function Opname() {
             const result = await res.json();
             console.log(result.data);
             setData(result.data);
-            setTotal(result.total_produk);
         } catch (err) {
             console.error("Error:", err);
         }
     }
 
+    const handleCSVFile = (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const file = e.target.files[0];
+            setFile(file);
+        }
+    }
+
     useEffect(() => {
-        fetch("http://127.0.0.1:8000/opname/")
+        fetch(`http://127.0.0.1:8000/opname?dbase=${0}`)
             .then((res) => res.json())
             .then((data) => setData(data.data));
     }, []);
 
-    const totalPages = Math.ceil(filteredData.length / pageLimit);
-    const start = (page - 1) * pageLimit;
-    const end = start + pageLimit;
-    const pageData = filteredData.slice(start, end);
+    const changeType = (e) => {
+        fetch(`http://127.0.0.1:8000/opname?dbase=${e}`)
+            .then((res) => res.json())
+            .then((data) => setData(data.data));
 
-    useEffect(() => setPage(1), [search]);
+    }
 
     return (
         <Navbar>
-            <p className="text-xl">Check Produk Opname</p>
-            <div className=" flex items-center text-center justify-between mx-4">
-                <input type="text" className="p-4 bg-gray-300 w-3/5 mx-auto m-4 rounded-lg" placeholder="Cari Produk..." onChange={(e)=> { setSearch(e.target.value); }}/>
-                <div className="flex gap-4">
-                    <input type="file" className="button" hidden id="csv" onChange={handleCSVFile} accept=".csv" />
-                    <label className="button" htmlFor="csv"> Upload .csv </label>
-                    <button className="button" onClick={handleSubmit} disabled={file==null}>Refresh Data</button>
+            <div className="flex flex-col justify-between bg-white rounded-lg my-4 px-2 shadow-lg">
+                <p className="text-2xl m-4">Check Produk Opname</p>
+                <div className="flex gap-4 my-4 p-2 py-4">
+                    <button className="button" onClick={() => changeType(0)}>Pembelian</button>
+                    <button className="button" onClick={() => changeType(1)}>Penjualan</button>
                 </div>
             </div>
+
             <OpnameTable 
-                headData={[ "Kode", "Nama", "Jumlah", "Stock Fisik", "Selisih" ]}
-                mainData={pageData}
+                headData={[ "Kode", "Nama", "Jumlah", "Stock Fisik", "Selisih", "Bulan" ]}
+                mainData={data}
+                handleSubmit={handleSubmit}
+                handleCSV={handleCSVFile}
+                file={file}
             />
-
-            <div className="flex items-center justify-between mt-4">
-                <button
-                    onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                    disabled={page === 1}
-                    className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                    Previous
-                </button>
-                <span> Page {page} of {totalPages} </span>
-
-                <button
-                    onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                    disabled={page >= totalPages}
-                    className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                    Next
-                </button>
-            </div>
         </Navbar>
     )
 }

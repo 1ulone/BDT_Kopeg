@@ -9,8 +9,12 @@ router = APIRouter(prefix="/opname", tags=["Opname"])
 
 
 @router.get("/")
-def get_all_produk():
-    items = list(db.pembelian.find({}, {"_id": 0, "Kode_Item": 1, "Nama_Item": 1, "Jumlah": 1, "Satuan":1}))
+def get_all_produk(dbase: str = Query(...)):
+    print(dbase)
+    if dbase == 0:
+        items = list(db.pembelian.find({}, {"_id": 0, "Kode_Item": 1, "Nama_Item": 1, "Jumlah": 1, "Satuan":1, "Bulan":1}))
+    else:
+        items = list(db.penjualan.find({}, {"_id": 0, "Kode_Item": 1, "Nama_Item": 1, "Jumlah": 1, "Satuan":1, "Bulan":1}))
     return {"data": items}
 
 
@@ -84,7 +88,7 @@ async def upload_opname(
                     {"Kode_Item": {"$in": kode_items_num}},
                 ]
             },
-            {"_id": 0, "Kode_Item": 1, "Nama_Item": 1, "Jumlah": 1, "Satuan":1}
+            {"_id": 0, "Kode_Item": 1, "Nama_Item": 1, "Jumlah": 1, "Satuan":1, "Bulan":1}
         )
         data_lama = await cursor.to_list(length=None)
 
@@ -111,11 +115,12 @@ async def upload_opname(
         merged["Nama_Item"] = merged["Nama_Item_baru"].fillna(merged["Nama_Item_lama"])
         merged["Jumlah_lama"] = merged["Jumlah_lama"].fillna(0)
         merged["Jumlah_baru"] = merged["Jumlah_baru"].fillna(0)
-        merged["Selisih"] = (merged["Jumlah_baru"] - merged["Jumlah_lama"]).abs()
+        merged["Selisih"] = (merged["Jumlah_baru"] - merged["Jumlah_lama"])
         merged["Stock_Fisik"] = merged["Jumlah_baru"]
         merged["Satuan"] = df_old["Satuan"]
+        merged["Bulan"] = df_old["Bulan"]
 
-        hasil = merged[["Kode_Item", "Nama_Item", "Jumlah_lama", "Stock_Fisik", "Selisih", "Satuan"]]
+        hasil = merged[["Kode_Item", "Nama_Item", "Jumlah_lama", "Stock_Fisik", "Selisih", "Satuan", "Bulan"]]
         hasil = hasil.fillna({
             "Nama_Item": "",
             "Jumlah_lama": 0,
@@ -150,7 +155,7 @@ async def upload_opname(
                 "data": paginated
             })
         except Exception as err:
-            print("🔥 PAGINATION / RESPONSE ERROR:", repr(err))
+            print("PAGINATION / RESPONSE ERROR:", repr(err))
             raise
 
     except Exception as e:

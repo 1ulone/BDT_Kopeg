@@ -11,7 +11,7 @@ export default function Navbar({ children }) {
     }
         
     return (
-        <div className="flex bg-green-900 main-font">  
+        <div className="flex main-font">  
             <motion.div 
                 className={`h-screen flex flex-col p-4 gap-12 text-white ${onShow ? "w-1/4 text-start" : "w-fit text-center mx-auto"}`}
                 initial={{ width:"7%" }}

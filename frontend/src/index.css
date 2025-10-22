@@ -12,18 +12,31 @@
 
 :root {
     overflow-x: hidden;
+    @apply bg-green-900; 
 }
 
 .button {
-    @apply text-2xl px-4 py-2 bg-green-400 rounded-lg hover:bg-green-800 hover:text-white duration-300 ease-in-out shadow-md disabled:bg-gray-600 disabled:text-gray-400;
+    @apply px-12 py-2 text-gray-100 bg-green-800 rounded-full hover:bg-green-400 hover:text-white duration-300 ease-in-out shadow-md disabled:bg-gray-600 disabled:text-gray-400;
 }
 
-table .content_even {
-    @apply px-4 py-2 text-center border-x-4 border-white bg-gray-200;
+.select_option {
+    @apply px-12 py-2 text-black bg-white rounded-full shadow-md hover:text-gray-400 duration-300 ease-in-out disabled:bg-gray-600 disabled:text-gray-400 border-2 border-gray-300;
 }
 
-table .content_odd {
-    @apply px-4 py-2 text-center border-x-4 border-white bg-gray-50;
+.content_even {
+    @apply text-center bg-gray-100 rounded-lg my-0.5 flex w-full border-2 border-gray-300 hover:text-white hover:bg-green-400 duration-300 ease-in-out;
+}
+
+.content_even p {
+    @apply w-full py-4;
+}
+
+.content_odd {
+    @apply text-center bg-gray-50 rounded-lg my-0.5 flex w-full border-2 border-gray-300  hover:text-white hover:bg-green-400 duration-300 ease-in-out;
+}
+
+.content_odd p {
+    @apply w-full py-4;
 }
 
 input::-webkit-outer-spin-button,

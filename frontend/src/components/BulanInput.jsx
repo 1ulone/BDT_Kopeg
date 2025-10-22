@@ -4,10 +4,10 @@ export default forwardRef(function BulanInput({ title, ...props }, ref) {
     const input = ref ? ref : useRef();
 
     return (
-        <div className="w-full flex flex-col">
+        <div className="w-fit flex flex-col my-4">
             <p className="text-2xl pb-1">{title}</p>
             <select 
-                className="border-2 border-gray-400 rounded-md shadow-md px-2 py-1 w-full text-xl"
+                className="text-xl px-12 py-2 text-black bg-white rounded-full hover:text-gray-400 duration-300 ease-in-out disabled:bg-gray-600 disabled:text-gray-400 border-2 border-gray-300"
                 ref={input}
                 {...props}
             >

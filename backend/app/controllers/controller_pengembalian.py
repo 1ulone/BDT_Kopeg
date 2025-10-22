@@ -1,4 +1,5 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, Query, UploadFile, File, HTTPException
+from fastapi.responses import FileResponse
 import pandas as pd
 from bson import ObjectId
 from app.models.model_pengembalian import Pengembalian
@@ -29,8 +30,8 @@ def pengembalian_serializer(item) -> dict:
 # GET semua data pengembalian
 @router.get("/")
 def get_all_pengembalian():
-    pengembalians = list(collection.find())
-    return [pengembalian_serializer(item) for item in pengembalians]
+    items = list(db.pengembalian.find({}, {"_id": 0}))
+    return {"data": items}
 
 # POST tambah data pengembalian
 @router.post("/")
@@ -38,6 +39,18 @@ def add_pengembalian(data: Pengembalian):
     inserted = collection.insert_one(data.dict())
     new_data = collection.find_one({"_id": inserted.inserted_id})
     return pengembalian_serializer(new_data)
+
+@router.get("/export")
+def export_data(bulan: str = Query(...)):
+    if bulan == "year":
+        data = list(db.pembelian.find({}, {"_id": 0}))
+    else:
+        data = list(db.pembelian.find({ "Bulan": bulan }, {"_id":0}))
+    df = pd.DataFrame(data)
+    filename = "pengembalian_export.csv"
+    df.to_csv(filename, index=False)
+    return FileResponse(filename, media_type="text/csv", filename=filename)
+
 
 # ✅ UPLOAD CSV ke MongoDB
 @router.post("/upload-csv")

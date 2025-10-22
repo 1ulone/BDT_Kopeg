@@ -1,4 +1,11 @@
-export default function Table({ headData, mainData, extraClass }) {
+import { useMemo, useState } from "react";
+
+export default function Table({ headData, mainData, extraClass, searchFeature=true }) {
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const [bulan, setBulan] = useState("");
+    const pageLimit = 20;
+
     const contentClass = (i) => {
         return i % 2 === 0 ? "content_odd" : "content_even";
     }
@@ -10,30 +17,85 @@ export default function Table({ headData, mainData, extraClass }) {
         return `Rp ${new Intl.NumberFormat("id-ID").format(amt)}`
     }
 
+    const filteredData = useMemo(() => {
+        if (!mainData)
+            return [];
+
+        return mainData.filter(d => {
+            const matchesNameSearch = d.Nama_Item.toLowerCase().includes(search.toLowerCase());
+            const matchesKodeSearch = d.Kode_Item.toString().includes(search.toLowerCase());
+            const matchesBulan = d.Bulan.toLowerCase().includes(bulan.toLowerCase());
+            return (matchesNameSearch || matchesKodeSearch) && matchesBulan;
+        });
+    }, [mainData, search, bulan]);
+
+    const totalPages = Math.ceil(filteredData.length / pageLimit);
+    const start = (page - 1) * pageLimit;
+    const end = start + pageLimit;
+    const pageData = filteredData.slice(start, end);
+
     return (
         <>
-            <table className={extraClass}>
-                <thead>
-                    <tr>
-                        {headData.map((head, index) => (
-                            <td key={index} className="w-1/6 px-2 py-4 border-white border-x-4 bg-gray-800 text-white text-center"> 
-                                {head} 
-                            </td>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {mainData.map((data, index) => (
-                        <tr key={index}>
-                            <td className={contentClass(index)}> {data.Kode_Item} </td>
-                            <td className={contentClass(index)}> {data.Nama_Item} </td>
-                            <td className={contentClass(index)}> {data.Jumlah} {data.Satuan} </td>
-                            <td className={contentClass(index)}> {formatCurrency(data.Total_Harga)} </td>
-                            <td className={contentClass(index)}> {data.Bulan} {data.Tahun} </td>
-                        </tr>
+            {searchFeature && (
+                <div className="py-4 w-full flex justify-between">
+                    <input type="text" className="p-4 bg-gray-300 w-3/5 rounded-full" placeholder="Cari Produk..." onChange={(e)=> { setSearch(e.target.value); }}/>
+                    <select className="select_option w-fit" onChange={(e) => setBulan(e.target.value)}>
+                        <option value="">-- pilih bulan --</option>
+                        <option value="januari">Januari</option>
+                        <option value="februari">februari</option>
+                        <option value="maret">maret</option>
+                        <option value="april">april</option>
+                        <option value="juni">juni</option>
+                        <option value="juli">juli</option>
+                        <option value="agustus">agustus</option>
+                        <option value="september">september</option>
+                        <option value="oktober">oktober</option>
+                        <option value="november">november</option>
+                        <option value="desember">desember</option>
+                    </select>
+                </div>
+            )}
+            <div className={"flex"+ extraClass}>
+                <div className="flex bg-gray-800 rounded-xl my-1">
+                    {headData.map((head, index) => (
+                        <div key={index} className="w-full px-2 py-4 text-white text-center"> 
+                            {head} 
+                        </div>
                     ))}
-                </tbody>
-            </table>
+                </div>
+                <div className="flex flex-col">
+                    {pageData.map((data, index) => (
+                        <div key={index} className={contentClass(index)}>
+                            <p> {data.Kode_Item} </p>
+                            <p> {data.Nama_Item} </p>
+                            <p> {data.Jumlah} {data.Satuan} </p>
+                            <p> {formatCurrency(data.Total_Harga)} </p>
+                            <p> {data.Bulan} {data.Tahun} </p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            
+            {searchFeature && (
+                <div className="flex items-center justify-between mt-4">
+                    <button
+                        onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                        disabled={page === 1}
+                        className="px-3 py-1 border rounded disabled:opacity-50"
+                    >
+                        Previous
+                    </button>
+                    <span> Page {page} of {totalPages} </span>
+
+                    <button
+                        onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                        disabled={page >= totalPages}
+                        className="px-3 py-1 border rounded disabled:opacity-50"
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
         </>
     )
 }
