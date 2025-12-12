@@ -44,7 +44,7 @@ export default function Pembelian() {
         {
             try {
                 console.log(data);
-                await fetch("http://localhost:8000/pembelian/", {
+                await fetch("http://backend-production-5484.up.railway.app/pembelian/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -60,7 +60,7 @@ export default function Pembelian() {
                 const formData = new FormData();
                 formData.append("file", file);
 
-                await fetch("http://localhost:8000/pembelian/upload", {
+                await fetch("http://backend-production-5484.up.railway.app/pembelian/upload", {
                     method: "POST",
                     body: formData,
                 });
