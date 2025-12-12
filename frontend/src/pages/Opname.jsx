@@ -12,7 +12,7 @@ export default function Opname() {
             const formData = new FormData();
             formData.append("file", file);
 
-            const res = await fetch("http://localhost:8000/opname/check", {
+            const res = await fetch("http://backend-production-5484.up.railway.app/opname/check", {
                 method: "POST",
                 body: formData,
             });

@@ -28,14 +28,14 @@ export default function Pengembalian() {
     useEffect(()=> {
         if (s=="input") return;
 
-        fetch("http://127.0.0.1:8000/pengembalian")
+        fetch("http://backend-production-5484.up.railway.app/pengembalian")
             .then((res) => res.json())
             .then((data) => setpData(data.data));
     });
 
     const handleChangeState = async () => {
         if (s=="input") return;
-        fetch("http://127.0.0.1:8000/pengembalian")
+        fetch("http://backend-production-5484.up.railway.app/pengembalian")
             .then((res) => res.json())
             .then((data) => setpData(data.data));
     }
@@ -46,7 +46,7 @@ export default function Pengembalian() {
         {
             try {
                 console.log(data);
-                await fetch("http://localhost:8000/pengembalian/", {
+                await fetch("http://backend-production-5484.up.railway.app/pengembalian/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -62,7 +62,7 @@ export default function Pengembalian() {
                 const formData = new FormData();
                 formData.append("file", file);
 
-                await fetch("http://localhost:8000/pengembalian/upload-csv", {
+                await fetch("http://backend-production-5484.up.railway.app/upload-csv", {
                     method: "POST",
                     body: formData,
                 });
