@@ -26,7 +26,7 @@ export default function Pembelian() {
     useEffect(()=> {
         if (s=="input") return;
 
-        fetch("http://127.0.0.1:8000/pembelian")
+        fetch("http://backend-production-5484.up.railway.app/pembelian")
             .then((res) => res.json())
             .then((data) => setpData(data.data));
     });
