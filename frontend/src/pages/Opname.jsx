@@ -12,7 +12,7 @@ export default function Opname() {
             const formData = new FormData();
             formData.append("file", file);
 
-            const res = await fetch("http://backend-production-5484.up.railway.app/opname/check", {
+            const res = await fetch("https://backend-production-5484.up.railway.app/opname/check", {
                 method: "POST",
                 body: formData,
             });
@@ -32,13 +32,13 @@ export default function Opname() {
     }
 
     useEffect(() => {
-        fetch(`http://127.0.0.1:8000/opname?dbase=${0}`)
+        fetch(`https://backend-production-5484.up.railway.app/opname?dbase=${0}`)
             .then((res) => res.json())
             .then((data) => setData(data.data));
     }, []);
 
     const changeType = (e) => {
-        fetch(`http://127.0.0.1:8000/opname?dbase=${e}`)
+        fetch(`https://backend-production-5484.up.railway.app/opname?dbase=${e}`)
             .then((res) => res.json())
             .then((data) => setData(data.data));
 
