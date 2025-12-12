@@ -26,14 +26,14 @@ export default function Pembelian() {
     useEffect(()=> {
         if (s=="input") return;
 
-        fetch("http://backend-production-5484.up.railway.app/pembelian")
+        fetch("https://backend-production-5484.up.railway.app/pembelian")
             .then((res) => res.json())
             .then((data) => setpData(data.data));
     });
 
     const handleChangeState = async () => {
         if (s=="input") return;
-        fetch("http://127.0.0.1:8000/pembelian")
+        fetch("https://backend-production-5484.up.railway.app/pembelian")
             .then((res) => res.json())
             .then((data) => setpData(data.data));
     }
@@ -44,7 +44,7 @@ export default function Pembelian() {
         {
             try {
                 console.log(data);
-                await fetch("http://backend-production-5484.up.railway.app/pembelian/", {
+                await fetch("https://backend-production-5484.up.railway.app/pembelian/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -60,7 +60,7 @@ export default function Pembelian() {
                 const formData = new FormData();
                 formData.append("file", file);
 
-                await fetch("http://backend-production-5484.up.railway.app/pembelian/upload", {
+                await fetch("https://backend-production-5484.up.railway.app/pembelian/upload", {
                     method: "POST",
                     body: formData,
                 });
