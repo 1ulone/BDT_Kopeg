@@ -55,7 +55,7 @@ export default function Opname() {
             </div>
 
             <OpnameTable 
-                headData={[ "Kode", "Nama", "Jumlah", "Stock Fisik", "Selisih", "Bulan" ]}
+                headData={[ "Kode", "Nama", "Stock", "Stock Fisik", "Selisih", "Bulan" ]}
                 mainData={data}
                 handleSubmit={handleSubmit}
                 handleCSV={handleCSVFile}
