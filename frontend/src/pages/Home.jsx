@@ -27,7 +27,7 @@ export default function Home() {
     const [bulan, setBulan] = useState("");
 
     useEffect(() => {
-        fetch("http://127.0.0.1:8000/statistik")
+        fetch("https://backend-production-5484.up.railway.app/statistik")
             .then((res) => res.json())
             .then((data) => setData({
                 top_items: data.top_items,
@@ -60,7 +60,7 @@ export default function Home() {
         .sort((a, b) => monthOrder.indexOf(a.Bulan.toUpperCase()) - monthOrder.indexOf(b.Bulan.toUpperCase()));
 
     const handlePredict = async () => {
-        await fetch("http://127.0.0.1:8000/predict/")
+        await fetch("https://backend-production-5484.up.railway.app/predict/")
             .then((res) => res.json())
             .then((data) => { 
                 setPrediction(data.data);
