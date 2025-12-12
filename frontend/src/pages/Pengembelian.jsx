@@ -28,14 +28,14 @@ export default function Pengembalian() {
     useEffect(()=> {
         if (s=="input") return;
 
-        fetch("http://127.0.0.1:8000/pengembalian")
+        fetch("http://backend-production-5484.up.railway.app/pengembalian")
             .then((res) => res.json())
             .then((data) => setpData(data.data));
     });
 
     const handleChangeState = async () => {
         if (s=="input") return;
-        fetch("http://127.0.0.1:8000/pengembalian")
+        fetch("http://backend-production-5484.up.railway.app/pengembalian")
             .then((res) => res.json())
             .then((data) => setpData(data.data));
     }
