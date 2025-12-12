@@ -189,7 +189,7 @@ export default function Pembelian() {
                     ) : (
                         <a 
                             className="button" 
-                            href={`http://127.0.0.1:8000/pembelian/export?bulan=${downBulan}`}
+                            href={`https://backend-production-5484.up.railway.app/pembelian/export?bulan=${downBulan}`}
                             target="_blank"
                             rel="noopener noreferrer"
                         >

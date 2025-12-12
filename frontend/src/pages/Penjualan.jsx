@@ -26,14 +26,14 @@ export default function penjualan() {
     useEffect(()=> {
         if (s=="input") return;
 
-        fetch("http://backend-production-5484.up.railway.app/penjualan")
+        fetch("https://backend-production-5484.up.railway.app/penjualan")
             .then((res) => res.json())
             .then((data) => setpData(data.data));
     });
 
     const handleChangeState = async () => {
         if (s=="input") return;
-        fetch("http://backend-production-5484.up.railway.app/penjualan")
+        fetch("https://backend-production-5484.up.railway.app/penjualan")
             .then((res) => res.json())
             .then((data) => setpData(data.data));
     }
@@ -44,7 +44,7 @@ export default function penjualan() {
         {
             try {
                 console.log(data);
-                await fetch("http://backend-production-5484.up.railway.app/penjualan/", {
+                await fetch("https://backend-production-5484.up.railway.app/penjualan/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -60,7 +60,7 @@ export default function penjualan() {
                 const formData = new FormData();
                 formData.append("file", file);
 
-                await fetch("http://backend-production-5484.up.railway.app/penjualan/upload-csv", {
+                await fetch("https://backend-production-5484.up.railway.app/penjualan/upload-csv", {
                     method: "POST",
                     body: formData,
                 });
@@ -189,7 +189,7 @@ export default function penjualan() {
                     ) : (
                         <a 
                             className="button" 
-                            href={`http://127.0.0.1:8000/penjualan/export?bulan=${downBulan}`}
+                            href={`https://backend-production-5484.up.railway.app/penjualan/export?bulan=${downBulan}`}
                             target="_blank"
                             rel="noopener noreferrer"
                         >
